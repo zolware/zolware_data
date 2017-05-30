@@ -1,10 +1,12 @@
 from pymongo import MongoClient
 
+from zolware_data import config
 
 class Database:
 
     def __init__(self):
-        connect_string = 'mongodb://quantifiedtrade:stimpy2305@ds045465.mlab.com:45465/quantifiedtrade_data'
+        config.db_password
+        connect_string = 'mongodb://quantifiedtrade:'+config.db_password+'@ds045465.mlab.com:45465/quantifiedtrade_data'
         self.client = MongoClient(connect_string)
 
     def get_db(self, database_name):
