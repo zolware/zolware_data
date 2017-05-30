@@ -1,3 +1,4 @@
+import json
 
 class Signal:
 
@@ -7,6 +8,9 @@ class Signal:
 
     def get_measurements(self):
         return self.signal["measurements"]
+
+    def id(self):
+        return self.signal["_id"]
 
     def name(self):
         return self.signal["name"]
@@ -43,3 +47,6 @@ class Signal:
 
     def file_uri(self):
         return self.signal["file_uri"]
+
+    def toJSON(self):
+        return json.loads(json.dumps(self.signal))
