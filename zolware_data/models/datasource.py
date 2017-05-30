@@ -1,29 +1,37 @@
 import requests
+import json
 from bson.objectid import ObjectId
 
 from zolware_data.data import database
 from zolware_data.models import signal
 from zolware_data import config
 
+
 class Datasource:
 
-    def __init__(self, user):
-        self.db = database.Database().get_db()
-        self.datasources = self.db.data_sources
-        self.datasource = None
-        self.user = user
+    def __init__(self, datasource=None):
 
-    def fetch(self, datasource_id):
-        self.datasource = self.datasources.find_one({'_id': ObjectId(datasource_id)})
+        if datasource is not None:
+            self.datasource = datasource
 
-    def fetch2(self, datasource_id):
+    def fetch(self, user, datasource_id):
         headers = {
-            "content-type": "text",
-            "Authorization": "Bearer " + self.user.token()
+            "content-type": "application/json",
+            "Authorization": "Bearer " + user.token()
         }
         url = config.api_endpoint + '/datasources/' + datasource_id
+        data = {}
+        res = requests.get(url, data=data, headers=headers)
+        if res.ok:
+            self.datasource = res.json()['datasource']
+        else:
+            self.datasource = None
 
-        self.datasource = requests.post(url, data=data, headers = headers)
+    def id(self):
+        return self.datasource["_id"]
+
+    def status(self):
+        return self.datasource["status"]
 
     def name(self):
         return self.datasource["name"]

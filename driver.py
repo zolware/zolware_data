@@ -1,15 +1,10 @@
 import pprint
 
-from zolware_data.models import datasource
+from zolware_data import user_manager
+from zolware_data import datasource_manager
 
-datasource = datasource.Datasource()
-datasource.fetch('59287a6d68ca556dbe4f6fd6')
+from zolware_data import signal_data_reader
 
-print(datasource.name())
-print(datasource.num_signals())
+series = signal_data_reader.read_from_file('data.csv')
 
-
-signals = datasource.get_signals()
-for sig in signals:
-    pprint.pprint(sig)
-    print(sig.x_max())
+print(series.head())

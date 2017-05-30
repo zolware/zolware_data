@@ -1,17 +1,9 @@
-import pprint
-
-from bson.objectid import ObjectId
-
-from zolware_data.data import database
-
 
 class Signal:
 
-    def __init__(self, signal_id):
-        self.db = database.Database().get_db()
-        self.signals = self.db.signals
-        self.signal = self.signals.find_one({'_id': ObjectId(signal_id)})
-        pprint.pprint(self.signal)
+    def __init__(self, signal=None):
+        if signal is not None:
+            self.signal = signal
 
     def get_measurements(self):
         return self.signal["measurements"]
@@ -39,3 +31,15 @@ class Signal:
 
     def dt(self):
         return self.signal["dt"]
+
+    def sensor_type(self):
+        return self.signal["sensor_type"]
+
+    def sensor_data_source(self):
+        return self.signal["sensor_data_source"]
+
+    def file_data_col_names(self):
+        return self.signal["file_data_col_names"]
+
+    def file_uri(self):
+        return self.signal["file_uri"]
