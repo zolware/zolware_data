@@ -1,52 +1,56 @@
 import json
 
+
 class Signal:
 
     def __init__(self, signal=None):
         if signal is not None:
             self.signal = signal
+            self.id = signal["_id"]
+            self.name = signal["name"]
+            self.description = signal["description"]
+            self.x_max = signal["Xrange"]["max"]
+            self.x_min = signal["Xrange"]["min"]
+            self.y_max = signal["Yrange"]["max"]
+            self.y_min = signal["Yrange"]["min"]
+            self.data_count = signal["data_count"]
+            self.data_type = signal["data_type"]
+            self.sensor_type = signal["sensor_type"]
+            self.status_msg = signal["status_msg"]
 
     def get_measurements(self):
         return self.signal["measurements"]
 
     def id(self):
-        return self.signal["_id"]
+        return self.id
 
     def name(self):
-        return self.signal["name"]
+        return self.name
 
     def description(self):
-        return self.signal["description"]
+        return self.description
 
     def x_max(self):
-        return self.signal["Xrange"]["max"]
+        return self.x_max
 
     def x_min(self):
-        return self.signal["Xrange"]["in"]
+        return self.x_min
 
     def y_max(self):
-        return self.signal["Yrange"]["max"]
+        return self.y_max
 
     def y_min(self):
-        return self.signal["Yrange"]["in"]
+        return self.y_min
 
     def data_count(self):
-        return self.signal["data_count"]
+        return self.data_count
 
     def dt(self):
-        return self.signal["dt"]
+        return self.dt
 
     def sensor_type(self):
-        return self.signal["sensor_type"]
+        return self.sensor_type
 
-    def sensor_data_source(self):
-        return self.signal["sensor_data_source"]
-
-    def file_data_col_names(self):
-        return self.signal["file_data_col_names"]
-
-    def file_uri(self):
-        return self.signal["file_uri"]
 
     def toJSON(self):
-        return json.loads(json.dumps(self.signal))
+        return json.loads(json.dumps(self.__dict__))

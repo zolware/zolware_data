@@ -10,9 +10,20 @@ from zolware_data import config
 class Datasource:
 
     def __init__(self, datasource=None):
-
+        self.signals = []
         if datasource is not None:
-            self.datasource = datasource
+            self.id = datasource["_id"]
+            self.name = datasource["name"]
+            self.description = datasource["description"]
+            self.dt = datasource["dt"]
+            self.file_line_cursor = datasource["file_line_cursor"]
+
+            for signals in datasource["signals"]:
+                self.signals.append(signal.Signal(signals))
+
+            self.file_data_col_names = datasource["file_data_col_names"]
+            self.file_uri = datasource["file_uri"]
+            self.data_source = datasource["data_source"]
 
     def fetch(self, user, datasource_id):
         headers = {

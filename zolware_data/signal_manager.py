@@ -14,14 +14,14 @@ class SignalManager:
 
     def save_signal(self, signal_to_save):
         headers = SignalManager.__construct_headers__(self.user)
-        url = config.api_endpoint + '/signals/' + signal_to_save.id()
+        url = config.api_endpoint + '/signals/' + signal_to_save.id
         data = signal_to_save.toJSON()
-        pprint.pprint(signal_to_save.toJSON())
-        res = requests.post(url, data=data, headers=headers)
+        data_json = json.dumps(data)
+        res = requests.post(url, data=data_json, headers=headers)
         if res.ok:
-            print("Yay")
+            print(res.json())
         else:
-            print(res)
+            print(res.json())
 
     def get_signal_by_id(self, signal_id):
         headers = SignalManager.__construct_headers__(self.user)

@@ -2,6 +2,7 @@ from pymongo import MongoClient
 
 from zolware_data import config
 
+
 class Database:
 
     def __init__(self):

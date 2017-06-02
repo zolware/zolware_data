@@ -1,3 +1,5 @@
 request
 numpy
 pandas
+boto3
+smart_open
