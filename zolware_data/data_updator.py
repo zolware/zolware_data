@@ -18,7 +18,6 @@ for datasource in data_sources:
     if datasource.status() == 'true':
         print('----------------------')
         print('Datasource: ' + datasource.name())
-        datasource_reader = datasource_reader.DataSourceReader(datasource.signals)
-        series = signal_data_reader.read_from_file(signal)
-        print(series.loc['1980-01-02':'1980-01-04'])
-        # signal_manager.save_signal(signal)
+        datasource_reader = datasource_reader.DataSourceReader(datasource, user)
+        series = datasource_reader.read()
+

@@ -1,20 +1,29 @@
 import requests
-import boto3
+import json
 import io
 import smart_open
 
 import pandas as pd
 
 from zolware_data import config
+from zolware_data import signal_manager
 
 
 class DataSourceReader:
 
-    def __init__(self, datasource):
+    def __init__(self, datasource, user):
         self.datasource = datasource
-        self.datetime_signal = 0
+        self.user = user
+        self.datetime_signal_col = 0
+        self.datetime_signal_datetime = []
+        self.datetime_signal_datacols = []
         if self.has_datestamp_signal() is False:
             raise RuntimeError("Warning no datestamp column")
+
+        self.signal_map = {}
+        for signal in self.datasource.signals:
+            self.signal_map[signal.name] = signal
+        print(self.signal_map)
 
     def read(self):
         if self.datasource.data_source == 'data_source_file':
@@ -54,8 +63,25 @@ class DataSourceReader:
         series = pd.read_csv(io.StringIO(s.decode('utf-8')), sep=',',
                              parse_dates=[0], header=0, names=names_in,
                              skiprows=file_line_cursor)
-        series = series.set_index([self.datasource.signals[self.datetime_signal].name])
-        return series
+        series = series.set_index([self.datasource.signals[self.datetime_signal_col].name])
+
+        signal_man = signal_manager.SignalManager(self.user)
+
+        for data_col in self.datetime_signal_datacols:
+            num_data = len(series)
+            json_object = json.loads(series.to_json(orient='split', date_format='iso'))
+            temp_array = []
+            #print(json_object['data'])
+            #print(json_object['index'])
+            #print(json_object['columns'])
+            for x in range(0, len(json_object['columns'])):
+                print(json_object['columns'][x])
+                temp_array.append({"datetime": json_object['index'][x], "value": json_object['data'][x]})
+                print(temp_array)
+
+            signal_man.save_signal_data(self.signal_map[data_col], temp_array)
+
+        return temp_array
 
     def url_exists(self, url):
         return requests.head(url).status_code == 200
@@ -78,8 +104,13 @@ class DataSourceReader:
         signals = self.datasource.signals
         col_count = -1
         for signal in signals:
+            col_count = col_count + 1
             if signal.data_type == 'Timestamp':
-                col_count = col_count + 1
-                self.datetime_signal = col_count
-                return True
-        return False
+                self.datetime_signal_datetime.append(signal.name)
+                self.datetime_signal_col = col_count
+            else:
+                self.datetime_signal_datacols.append(signal.name)
+        if len(self.datetime_signal_datetime) > 0:
+            return True
+        else:
+            return False

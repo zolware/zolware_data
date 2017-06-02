@@ -23,6 +23,18 @@ class SignalManager:
         else:
             print(res.json())
 
+    def save_signal_data(self, signal_in, data_in):
+        headers = SignalManager.__construct_headers__(self.user)
+        url = config.api_endpoint + '/signals/' + signal_in.id + '/adddata'
+        datas = data_in
+        print(" - - - - - ")
+        print(datas)
+        res = requests.post(url, data=json.dumps(datas), headers=headers)
+        if res.ok:
+            print(res.json())
+        else:
+            print(res.status_code)
+
     def get_signal_by_id(self, signal_id):
         headers = SignalManager.__construct_headers__(self.user)
         url = config.api_endpoint + '/signals/' + signal_id
