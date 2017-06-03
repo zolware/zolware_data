@@ -20,6 +20,7 @@ class DataSourceReader:
         if self.has_datestamp_signal() is False:
             raise RuntimeError("Warning no datestamp column")
 
+
         self.signal_map = {}
         for signal in self.datasource.signals:
             self.signal_map[signal.name] = signal
@@ -35,8 +36,10 @@ class DataSourceReader:
                 aws_secret_access_key = config.AWS_SECRET_ACCESS_KEY
                 self.read_from_s3_bucket_by_url(bucket, 'Tamar.txt', aws_access_key_id, aws_secret_access_key)
             else:
+                print(file_uri)
                 if self.url_exists(file_uri) is False:
                     self.datasource.status_msg = 'File URI ' + file_uri + ' does not exist'
+                    raise RuntimeError('File URI ' + file_uri + ' does not exist')
                 else:
                     return self.read_from_file()
 
@@ -56,34 +59,35 @@ class DataSourceReader:
             print(line)
 
     def read_from_file(self):
-        # Make this safe by chcking columns etc
+        # Get columnn names from the names of the signals
         names_in = self.get_data_columns().split(",")
+        # Get the position all ready read in the datasource
         file_line_cursor = self.datasource.file_line_cursor
-        s = requests.get(self.datasource.file_uri).content
-        series = pd.read_csv(io.StringIO(s.decode('utf-8')), sep=',',
+
+        file_handle = requests.get(self.datasource.file_uri).content
+        series = pd.read_csv(io.StringIO(file_handle.decode('utf-8')), sep=',',
                              parse_dates=[0], header=0, names=names_in,
                              skiprows=file_line_cursor)
+        # Set the series index to the name of the datestamp column
         series = series.set_index([self.datasource.signals[self.datetime_signal_col].name])
-
+        # Get the signal manager
         signal_man = signal_manager.SignalManager(self.user)
+        # Loop over the data columns (not the datestamp colum)
+        #for data_col in self.datetime_signal_datacols:
+        json_object = json.loads(series.to_json(orient='split', date_format='iso'))
+        temp_array = []
+        # Loop over the number
+        for x in range(0, len(json_object['columns'])):
+            print(json_object['columns'][x])
+            temp_array.append({"datetime": json_object['index'][x], "value": json_object['data'][x]})
+            print(temp_array)
 
-        for data_col in self.datetime_signal_datacols:
-            num_data = len(series)
-            json_object = json.loads(series.to_json(orient='split', date_format='iso'))
-            temp_array = []
-            #print(json_object['data'])
-            #print(json_object['index'])
-            #print(json_object['columns'])
-            for x in range(0, len(json_object['columns'])):
-                print(json_object['columns'][x])
-                temp_array.append({"datetime": json_object['index'][x], "value": json_object['data'][x]})
-                print(temp_array)
-
-            signal_man.save_signal_data(self.signal_map[data_col], temp_array)
+        signal_man.save_signal_data(self.signal_map[data_col], temp_array)
 
         return temp_array
 
     def url_exists(self, url):
+        print(requests.head(url).status_code)
         return requests.head(url).status_code == 200
 
     def is_S3_url(self, url):
