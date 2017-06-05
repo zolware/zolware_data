@@ -29,7 +29,7 @@ class DataSourceReader:
         if self.datasource.data_source == 'data_source_file':
             # Local, http, or AWS S3
             file_uri = self.datasource.file_uri
-            if self.is_S3_url(file_uri):
+            if url_util.is_S3_url(file_uri):
                 bucket = config.AWS_STORAGE_BUCKET_NAME
                 aws_access_key_id = config.AWS_ACCESS_KEY_ID
                 aws_secret_access_key = config.AWS_SECRET_ACCESS_KEY
@@ -83,18 +83,6 @@ class DataSourceReader:
         #signal_man.save_signal_data(self.signal_map[data_col], temp_array)
 
         return temp_array
-
-    def url_exists(self, url):
-        if url.startswith('http://') or url.startswith('https://'):
-            return requests.head(url).status_code == 200
-        else:
-            return False
-
-    def is_S3_url(self, url):
-        if url.startswith('s3://') or url.startswith('https://s3'):
-            return True
-        else:
-            return False
 
     def get_data_columns(self):
         column_names = ""
