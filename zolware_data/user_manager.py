@@ -24,4 +24,3 @@ class UserManager:
         user = self.users.find_one({'local.displayName': username})
         return user
 
-   # def __make_user__(self, user_dict):

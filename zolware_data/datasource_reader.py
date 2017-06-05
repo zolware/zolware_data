@@ -7,6 +7,7 @@ import pandas as pd
 
 from zolware_data import config
 from zolware_data import signal_manager
+from zolware_data.utils import url_util
 
 
 class DataSourceReader:
@@ -20,11 +21,9 @@ class DataSourceReader:
         if self.has_datestamp_signal() is False:
             raise RuntimeError("Warning no datestamp column")
 
-
         self.signal_map = {}
         for signal in self.datasource.signals:
             self.signal_map[signal.name] = signal
-        print(self.signal_map)
 
     def read(self):
         if self.datasource.data_source == 'data_source_file':
@@ -36,8 +35,7 @@ class DataSourceReader:
                 aws_secret_access_key = config.AWS_SECRET_ACCESS_KEY
                 self.read_from_s3_bucket_by_url(bucket, 'Tamar.txt', aws_access_key_id, aws_secret_access_key)
             else:
-                print(file_uri)
-                if self.url_exists(file_uri) is False:
+                if url_util.url_exists(file_uri) is False:
                     self.datasource.status_msg = 'File URI ' + file_uri + ' does not exist'
                     raise RuntimeError('File URI ' + file_uri + ' does not exist')
                 else:
@@ -82,13 +80,15 @@ class DataSourceReader:
             temp_array.append({"datetime": json_object['index'][x], "value": json_object['data'][x]})
             print(temp_array)
 
-        signal_man.save_signal_data(self.signal_map[data_col], temp_array)
+        #signal_man.save_signal_data(self.signal_map[data_col], temp_array)
 
         return temp_array
 
     def url_exists(self, url):
-        print(requests.head(url).status_code)
-        return requests.head(url).status_code == 200
+        if url.startswith('http://') or url.startswith('https://'):
+            return requests.head(url).status_code == 200
+        else:
+            return False
 
     def is_S3_url(self, url):
         if url.startswith('s3://') or url.startswith('https://s3'):
@@ -105,6 +105,8 @@ class DataSourceReader:
         return column_names[:-1]
 
     def has_datestamp_signal(self):
+        print('has_datestamp_signal')
+        print(self.datasource.signals)
         signals = self.datasource.signals
         col_count = -1
         for signal in signals:

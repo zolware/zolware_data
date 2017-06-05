@@ -2,28 +2,26 @@ import requests
 import json
 from bson.objectid import ObjectId
 
-from zolware_data.data import database
+from zolware_data import signal_manager
 from zolware_data.models import signal
 from zolware_data import config
 
 
 class Datasource:
 
-    def __init__(self, datasource=None):
+    def __init__(self, user, datasource=None):
         self.signals = []
+        self.user = user
         if datasource is not None:
             self.id = datasource["_id"]
             self.name = datasource["name"]
             self.description = datasource["description"]
             self.dt = datasource["dt"]
             self.file_line_cursor = datasource["file_line_cursor"]
-
-            for signals in datasource["signals"]:
-                self.signals.append(signal.Signal(signals))
-
             self.file_data_col_names = datasource["file_data_col_names"]
             self.file_uri = datasource["file_uri"]
             self.data_source = datasource["data_source"]
+            self.status = datasource["status"]
 
     def fetch(self, user, datasource_id):
         headers = {
@@ -38,21 +36,6 @@ class Datasource:
         else:
             self.datasource = None
 
-    def id(self):
-        return self.datasource["_id"]
-
-    def status(self):
-        return self.datasource["status"]
-
-    def name(self):
-        return self.datasource["name"]
-
-    def description(self):
-        return self.datasource["description"]
-
-    def num_signals(self):
-        return len(self.datasource["signals"])
-
     def get_signals(self):
         signal_array = []
         for sig in self.datasource["signals"]:
@@ -65,3 +48,25 @@ class Datasource:
         signal_id = ObjectId(signal_id)
         signalobject = signal.Signal(signal_id)
         return signalobject
+
+    def populate_signals(self):
+        print("in populate")
+        headers = self.__construct_headers__()
+        url = config.api_endpoint + '/datasources/' + self.id + '/signals'
+        data = {}
+        res = requests.get(url, data=data, headers=headers)
+        if res.ok:
+            signals = res.json()['signals']
+            for sig in signals:
+                self.signals.append(signal.Signal(sig))
+        else:
+            print(res.status_code)
+            return []
+
+    def __construct_headers__(self):
+        print('__construct_headers__')
+        print(self.user)
+        return {
+            "content-type": "application/json",
+            "Authorization": "Bearer " + self.user.token
+        }

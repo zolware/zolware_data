@@ -6,6 +6,7 @@ class Signal:
     def __init__(self, signal=None):
         if signal is not None:
             self.signal = signal
+            print(signal)
             self.id = signal["_id"]
             self.name = signal["name"]
             self.description = signal["description"]

@@ -10,14 +10,13 @@ user = user_manager.find_user_by_email('snclucas@gmail.com')
 datasource_manager = datasource_manager.DatasourceManager(user)
 signal_manager = signal_manager.SignalManager(user)
 
-
-
 # Loop over datasources
 data_sources = datasource_manager.get_all_datasources();
 for datasource in data_sources:
-    if datasource.status() == 'true':
+    if datasource.status == 'OK':
         print('----------------------')
-        print('Datasource: ' + datasource.name())
+        print('Datasource: ' + datasource.name)
+        datasource.populate_signals()
         datasource_reader = datasource_reader.DataSourceReader(datasource, user)
         series = datasource_reader.read()
 

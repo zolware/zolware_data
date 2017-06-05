@@ -19,7 +19,7 @@ class DatasourceManager:
         data = {}
         res = requests.get(url, data=data, headers=headers)
         if res.ok:
-            return datasource.Datasource(res.json()['datasource'])
+            return datasource.Datasource(self.user, res.json()['datasource'])
         else:
             return []
 
@@ -32,7 +32,7 @@ class DatasourceManager:
             datasources_return = []
             datasources = res.json()['datasources']
             for ds in datasources:
-                datasources_return.append(datasource.Datasource(ds))
+                datasources_return.append(datasource.Datasource(self.user, ds))
             return datasources_return
         else:
             return []
@@ -58,9 +58,10 @@ class DatasourceManager:
         datasources = db.data_sources
         return datasources.find_one({'_id': ObjectId(datasource_id)})
 
-    @staticmethod
-    def __construct_headers__(user):
+    def __construct_headers__(self):
+        print("__construct_headers__")
+        print(self.user)
         return {
             "content-type": "application/json",
-            "Authorization": "Bearer " + user.token()
+            "Authorization": "Bearer " + self.user["token"]
         }

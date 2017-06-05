@@ -59,8 +59,19 @@ class SignalManager:
         else:
             return []
 
-
-
+    def get_signals_for_datasource(self, datasource):
+        headers = SignalManager.__construct_headers__(self.user)
+        url = config.api_endpoint + '/datasource/' + datasource.id + '/signals'
+        data = {}
+        res = requests.get(url, data=data, headers=headers)
+        if res.ok:
+            signals_return = []
+            signals = res.json()['signals']
+            for sig in signals:
+                signals_return.append(signal.Signal(sig))
+            return signals_return
+        else:
+            return []
 
 
     @staticmethod
