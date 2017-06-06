@@ -21,6 +21,4 @@ class UserManager:
         return user.User(user_dict)
 
     def find_user_by_username(self, username):
-        user = self.users.find_one({'local.displayName': username})
-        return user
-
+        return self.users.find_one({'local.displayName': username})

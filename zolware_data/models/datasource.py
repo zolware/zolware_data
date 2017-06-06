@@ -24,10 +24,7 @@ class Datasource:
             self.status = datasource["status"]
 
     def fetch(self, user, datasource_id):
-        headers = {
-            "content-type": "application/json",
-            "Authorization": "Bearer " + user.token()
-        }
+        headers = self.__construct_headers__()
         url = config.api_endpoint + '/datasources/' + datasource_id
         data = {}
         res = requests.get(url, data=data, headers=headers)
@@ -50,7 +47,6 @@ class Datasource:
         return signalobject
 
     def populate_signals(self):
-        print("in populate")
         headers = self.__construct_headers__()
         url = config.api_endpoint + '/datasources/' + self.id + '/signals'
         data = {}
@@ -64,8 +60,6 @@ class Datasource:
             return []
 
     def __construct_headers__(self):
-        print('__construct_headers__')
-        print(self.user)
         return {
             "content-type": "application/json",
             "Authorization": "Bearer " + self.user.token

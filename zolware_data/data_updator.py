@@ -19,4 +19,3 @@ for datasource in data_sources:
         datasource.populate_signals()
         datasource_reader = datasource_reader.DataSourceReader(datasource, user)
         series = datasource_reader.read()
-

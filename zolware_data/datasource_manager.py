@@ -1,4 +1,5 @@
 import requests
+import json
 from bson.objectid import ObjectId
 
 from zolware_data.models import signal
@@ -24,7 +25,7 @@ class DatasourceManager:
             return []
 
     def get_all_datasources(self):
-        headers = DatasourceManager.__construct_headers__(self.user)
+        headers = self.__construct_headers__()
         url = config.api_endpoint + '/datasources'
         data = {}
         res = requests.get(url, data=data, headers=headers)
@@ -38,7 +39,7 @@ class DatasourceManager:
             return []
 
     def get_all_signals_for_datasource(self, datasource_id):
-        headers = DatasourceManager.__construct_headers__(self.user)
+        headers = self.__construct_headers__()
         url = config.api_endpoint + '/datasources/' + datasource_id + '/signals'
         data = {}
         res = requests.get(url, data=data, headers=headers)
@@ -51,6 +52,17 @@ class DatasourceManager:
         else:
             return []
 
+    def save_measurement_data(self, datasource_id, data_in):
+        headers = self.__construct_headers__()
+        url = config.api_endpoint + '/datasources/' + datasource_id + '/add_measurements'
+        datas = data_in
+        print(" - - - - - ")
+        print(datas)
+        res = requests.post(url, data=json.dumps(datas), headers=headers)
+        if res.ok:
+            print(res.json())
+        else:
+            print(res.status_code)
 
     @staticmethod
     def fetch_by_db(datasource_id):
@@ -59,9 +71,8 @@ class DatasourceManager:
         return datasources.find_one({'_id': ObjectId(datasource_id)})
 
     def __construct_headers__(self):
-        print("__construct_headers__")
         print(self.user)
         return {
             "content-type": "application/json",
-            "Authorization": "Bearer " + self.user["token"]
+            "Authorization": "Bearer " + self.user.token
         }
