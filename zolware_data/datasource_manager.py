@@ -52,6 +52,18 @@ class DatasourceManager:
         else:
             return []
 
+    def save_datasource(self, datasource_in, data_in):
+        headers = self.__construct_headers__()
+        url = config.api_endpoint + '/datasources/' + datasource_in.id
+        datas = data_in
+        print(" - - - - - ")
+        print(datas)
+        res = requests.post(url, data=json.dumps(datas), headers=headers)
+        if res.ok:
+            print(res.json())
+        else:
+            print(res.status_code)
+
     def save_measurement_data(self, datasource_id, data_in):
         headers = self.__construct_headers__()
         url = config.api_endpoint + '/datasources/' + datasource_id + '/add_measurements'
